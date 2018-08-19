@@ -2,7 +2,7 @@
 
 set -e -u -o pipefail
 
-readonly MRUSTC_VER='b5b7089'
+readonly MRUSTC_VER='f4483c0'
 readonly SDK_VER='2.4.1'
 
 readonly INSTALL_DIR="${HOME}/.esp-rs"
@@ -36,7 +36,7 @@ function main() {
 function install_toolchain() {
     if ! rustup --version &>/dev/null; then
         echo 'Installing rustup...'
-        curl https://sh.rustup.rs -sSf | sh
+        curl https://sh.rustup.rs -sSf | sh -s -- -y
     fi
     rustup target add i686-unknown-linux-gnu
     if ! bindgen --version &>/dev/null; then
@@ -61,7 +61,7 @@ function install_toolchain() {
 
     checkout_git_revision 'https://github.com/thepowersgang/mrustc.git' "${MRUSTC_VER}" "${MRUSTC_DIR}" 'mrustc'
     echo "Building mrustc/minicargo@${MRUSTC_VER}"
-    ( cd "${MRUSTC_DIR}" && make RUSTCSRC && make -f minicargo.mk )
+    ( cd "${MRUSTC_DIR}" && CC=gcc-8 CXX=g++-8 make RUSTCSRC && CC=gcc-8 CXX=g++-8 make -f minicargo.mk LIBS )
     checkout_git_revision 'https://github.com/esp8266/Arduino.git' "${SDK_VER}" "${SDK_ROOT}" 'ESP8266 Arduino SDK'
     if ! [[ -d "${TOOLCHAIN_ROOT}" ]]; then
         echo 'Installing PlatformIO ESP8266 Arduino SDK...'
